@@ -1,0 +1,170 @@
+- hosts: namenode
+  vars:
+          - destination: "/home/ansadmin"
+          - hadoop_file: "hadoop-1.2.1-1.x86_64.rpm"
+          - JVM_file: "jdk-8u171-linux-x64.rpm"
+          - hadoop_core_file: ""
+          - hadoop_path: "/etc/hadoop"
+          - start_name: "hadoop-daemon.sh start namenode"
+          - format_name: "hadoop namenode -format -force"
+            #- ip_for_core: "{{ ansible_facts['default_ipv4']['address'] }}"
+          - ip_for_core: "0.0.0.0"
+          - hdfs_name: "dfs.name.dir"
+          - node: "name"
+  vars_prompt:
+          - name: name_node_dir
+            prompt: "Enter the directory for Name Node"
+            private: no
+          - name: name_node_ip
+            prompt: "Enter the IP for name node"
+            private: no
+  tasks:
+          - name: "Adding rpm file for Hadoop"
+            copy:
+                    src: "{{ hadoop_file }}"
+                    dest: "{{ destination }}"
+          - name: "Adding rpm file for JVM"
+            copy:
+                    src: "{{ JVM_file }}"
+                    dest: "{{ destination }}"
+          - name: "Installing JVM for Name Node"
+            command: "rpm -ivh {{ JVM_file }}"
+            ignore_errors: yes
+         
+          - name: "Installing Hadoop for Name Node"
+            command: "rpm -ivh {{ hadoop_file }} --force"
+            ignore_errors: yes
+
+          - name: "Setting up Hadoop Name node Directory"
+            file:
+                    state: directory
+                    src: "/"
+                    name: "{{ name_node_dir }}"
+
+
+          - name: "Setting up core-site.xml"
+            template:
+                    dest: "{{ hadoop_path }}/core-site.xml"
+                    src: "core-site.xml"
+
+          - name: "Setting up HDFS_site.xml"
+            template:
+                    dest: "{{ hadoop_path }}/hdfs-site.xml"
+                    src: "hdfs-site.xml"
+          - name: "Formating Name node"
+            shell: "{{ format_name }}"
+
+          - name: "Starting the Name node"
+            command: "{{ start_name }}"
+
+          - name: "Status of Name node"
+            command: "jps"
+            register: out
+          - debug:
+                  var: out.stdout
+
+
+
+
+- hosts: datanode
+  vars:
+          - destination: "/home/ansadmin"
+          - hadoop_file: "hadoop-1.2.1-1.x86_64.rpm"
+          - JVM_file: "jdk-8u171-linux-x64.rpm"
+          - hadoop_core_file: ""
+          - hadoop_path: "/etc/hadoop"
+          - start_data: "hadoop-daemon.sh start datanode"
+          - hdfs_name: "dfs.data.dir"
+          - node: "data"
+            # - format_name: "hadoop namenode -format"
+  vars_prompt:
+          - name: name_node_dir
+            prompt: "Enter the directory for Data Node"
+            private: no
+          - name: ip_for_core
+            prompt: "Enter the IP for Name node"
+            private: no
+  tasks:
+          - name: "Adding rpm file for Hadoop"
+            copy:
+                    src: "{{ hadoop_file }}"
+                    dest: "{{ destination }}"
+          - name: "Adding rpm file for JVM"
+            copy:
+                    src: "{{ JVM_file }}"
+                    dest: "{{ destination }}"
+          - name: "Installing JVM for Data Node"
+            command: "rpm -ivh {{ JVM_file }}"
+            ignore_errors: yes
+
+
+          - name: "Installing Hadoop for Data Node"
+            command: "rpm -ivh {{ hadoop_file }} --force"
+            ignore_errors: yes
+
+
+          - name: "Setting up Hadoop Data node Directory"
+            file:
+                    state: directory
+                    src: "/"
+                    name: "{{ name_node_dir }}"
+
+
+          - name: "Setting up core-site.xml"
+            template:
+                    dest: "{{ hadoop_path }}/core-site.xml"
+                    src: "core-site.xml"
+
+          - name: "Setting up HDFS_site.xml"
+            template:
+                    dest: "{{ hadoop_path }}/hdfs-site.xml"
+                    src: "hdfs-site.xml"
+
+          - name: "Starting the Data node"
+            command: "{{ start_data }}"
+
+          - name: "Status of Data node"
+            command: "jps"
+            register: out
+          - debug:
+                  var: out.stdout
+
+
+
+- hosts: clientnode
+  vars:
+          - destination: "/home/ansadmin"
+          - hadoop_file: "hadoop-1.2.1-1.x86_64.rpm"
+          - JVM_file: "jdk-8u171-linux-x64.rpm"
+          - hadoop_core_file: ""
+          - hadoop_path: "/etc/hadoop"
+  vars_prompt:
+          - name: ip_for_core
+            prompt: "Enter the IP for Name node"
+            private: no
+  tasks:
+          - name: "Adding rpm file for Hadoop"
+            copy:
+                   src: "{{ hadoop_file }}"
+                   dest: "{{ destination }}"
+          - name: "Adding rpm file for JVM"
+            copy:
+                   src: "{{ JVM_file }}"
+                   dest: "{{ destination }}"
+          - name: "Installing JVM for Client  Node"
+            command: "rpm -ivh {{ JVM_file }}"
+            ignore_errors: yes
+
+
+          - name: "Installing Hadoop for Client Node"
+            command: "rpm -ivh {{ hadoop_file }} --force"
+            ignore_errors: yes
+
+          - name: "Setting up core-site.xml"
+            template:
+                    dest: "{{ hadoop_path }}/core-site.xml"
+                    src: "core-site.xml"
+
+
+
+

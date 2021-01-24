@@ -1,0 +1,35 @@
+- hosts: clientnode
+  vars:
+          - destination: "/home/ansadmin"
+          - hadoop_file: "hadoop-1.2.1-1.x86_64.rpm"
+          - JVM_file: "jdk-8u171-linux-x64.rpm"
+          - hadoop_core_file: ""
+          - hadoop_path: "/etc/hadoop"
+          - start_data: "hadoop-daemon.sh start datanode"
+          - hdfs_name: "dfs.data.dir"
+            # - format_name: "hadoop namenode -format"
+  vars_prompt:
+          - name: ip_for_core
+            prompt: "Enter the IP for Name node"
+            private: no
+  tasks:
+          - name: "Adding rpm file for Hadoop"
+            copy:
+                   src: "{{ hadoop_file }}"
+                   dest: "{{ destination }}"
+          - name: "Adding rpm file for JVM"
+            copy:
+                   src: "{{ JVM_file }}"
+                   dest: "{{ destination }}"
+                   #- name: "Installing JVM for Client  Node"
+                   #command: "rpm -ivh {{ JVM_file }}"
+
+                  
+                   #- name: "Installing Hadoop for Client Node"
+                   #command: "rpm -ivh {{ hadoop_file }} --force"
+
+          - name: "Setting up core-site.xml"
+            template:
+                    dest: "{{ hadoop_path }}/core-site.xml"
+                    src: "core-site.xml"
+          

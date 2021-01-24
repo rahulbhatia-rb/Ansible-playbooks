@@ -1,0 +1,6 @@
+<configuration>
+<property>
+<name>dfs.{{ node }}.dir</name>
+<value>/{{ name_node_dir }}</value>
+</property>
+</configuration>
