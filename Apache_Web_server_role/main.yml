@@ -1,0 +1,4 @@
+- name: "Checking for Ansible Webserver role"
+  hosts: all
+  roles:
+          - WebServer
